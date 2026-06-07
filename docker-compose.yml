@@ -1,0 +1,136 @@
+# TRIAGE — compose definitivo
+#
+# Architettura Event Bus:
+#   Microservizi → Audit Log (facade) → Event Bus 1 → System Log    (tecnico)
+#                                     → Event Bus 2 → Server Storage (clinico)
+
+services:
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "7860:7860"
+    environment:
+      GATEWAY_URL: http://api-gateway:8000
+    depends_on:
+      api-gateway:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8000"
+    environment:
+      DATA_INGESTION_URL:         http://data-ingestion:8000
+      TRIAGE_ORCHESTRATOR_URL:    http://triage-orchestrator:8000
+      FEEDBACK_SERVICE_URL:       http://feedback-service:8000
+      INFERENCE_SERVICE_URL:      http://inference-service:8000
+      EXPLAINABILITY_SERVICE_URL: http://explainability-service:8000
+      MODEL_REGISTRY_URL:         http://model-registry:8000
+      AUDIT_LOG_URL:              http://audit-log:8000
+      SYSTEM_LOG_URL:             http://system-log:8000
+      SERVER_STORAGE_URL:         http://server-storage:8000
+    depends_on:
+      data-ingestion:
+        condition: service_healthy
+      triage-orchestrator:
+        condition: service_healthy
+      feedback-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Service Layer ───────────────────────────────────────────────────────────
+
+  data-ingestion:
+    build: ./data-ingestion
+    environment:
+      DB_PATH: /data/mri_store.db
+      AUDIT_LOG_URL: http://audit-log:8000
+    volumes:
+      - mri-data:/data
+    restart: unless-stopped
+
+  triage-orchestrator:
+    build: ./triage-orchestrator
+    environment:
+      INFERENCE_SERVICE_URL:      http://inference-service:8000
+      EXPLAINABILITY_SERVICE_URL: http://explainability-service:8000
+      AUDIT_LOG_URL:              http://audit-log:8000
+    depends_on:
+      inference-service:
+        condition: service_healthy
+      explainability-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+  inference-service:
+    build: ./inference-service
+    environment:
+      AUDIT_LOG_URL: http://audit-log:8000
+    restart: unless-stopped
+
+  explainability-service:
+    build: ./explainability-service
+    restart: unless-stopped
+
+  feedback-service:
+    build: ./feedback-service
+    environment:
+      DB_PATH:            /data/feedback.db
+      MODEL_REGISTRY_URL: http://model-registry:8000
+      AUDIT_LOG_URL:      http://audit-log:8000
+    volumes:
+      - feedback-data:/data
+    depends_on:
+      model-registry:
+        condition: service_healthy
+      audit-log:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Storage & Observability Layer ───────────────────────────────────────────
+
+  model-registry:
+    build: ./model-registry
+    environment:
+      DB_PATH: /data/model_registry.db
+      AUDIT_LOG_URL: http://audit-log:8000
+    volumes:
+      - registry-data:/data
+    restart: unless-stopped
+
+  audit-log:
+    build: ./audit-log
+    environment:
+      SYSTEM_LOG_URL:     http://system-log:8000
+      SERVER_STORAGE_URL: http://server-storage:8000
+    depends_on:
+      system-log:
+        condition: service_healthy
+      server-storage:
+        condition: service_healthy
+    restart: unless-stopped
+
+  system-log:
+    build: ./system-log
+    environment:
+      DB_PATH: /data/system_log.db
+    volumes:
+      - system-log-data:/data
+    restart: unless-stopped
+
+  server-storage:
+    build: ./server-storage
+    environment:
+      DB_PATH: /data/server_storage.db
+    volumes:
+      - server-storage-data:/data
+    restart: unless-stopped
+
+volumes:
+  feedback-data:
+  mri-data:
+  registry-data:
+  system-log-data:
+  server-storage-data:

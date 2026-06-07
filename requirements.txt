@@ -1,0 +1,29 @@
+# TRIAGE — dipendenze consolidate (tutti i servizi)
+#
+# Python 3.11 / 3.12 / 3.13 : tutte le versioni sono compatibili.
+# Python 3.14               : httpx non ancora pronto (usato in gateway e orchestrator).
+#                             I Dockerfile usano python:3.11-slim → nessun problema in Docker.
+#
+# Installazione unica per sviluppo locale:
+#   pip install -r requirements.txt
+#
+# Librerie stdlib usate (non da installare):
+#   abc, base64, contextlib, hashlib, io, json, logging, os, sqlite3, typing, uuid
+
+# ── Web framework ──────────────────────────────────────────────────────────────
+fastapi>=0.119.1           # tutti i servizi FastAPI   | Python 3.14 ✓ (dalla 0.119.1)
+uvicorn[standard]==0.34.0  # tutti i servizi FastAPI   | Python 3.14 ✓
+pydantic==2.10.4           # tutti i servizi FastAPI   | Python 3.14 ✓
+
+# ── Frontend ───────────────────────────────────────────────────────────────────
+gradio==6.15.2             # frontend                  | Python 3.14 ✓
+
+# ── HTTP client (chiamate inter-servizio) ─────────────────────────────────────
+httpx==0.28.1              # api-gateway, triage-orchestrator, frontend | Python 3.14 ✗
+
+# ── Multipart / upload ────────────────────────────────────────────────────────
+python-multipart==0.0.20   # tutti i servizi FastAPI con upload         | Python 3.14 ✓
+
+# ── Imaging e array numerici ──────────────────────────────────────────────────
+pillow==11.1.0             # data-ingestion, inference, explainability, frontend | Python 3.14 ✓
+numpy==2.2.1               # inference, explainability, frontend                 | Python 3.14 ✓
