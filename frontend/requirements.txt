@@ -1,4 +1,4 @@
-gradio==6.15.2
+nicegui==1.4.21
 httpx==0.28.1
-pillow==11.1.0
-numpy==2.2.1
+Pillow==10.4.0
+numpy==1.26.4

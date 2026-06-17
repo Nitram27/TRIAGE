@@ -130,8 +130,12 @@ class FeedbackCreate(BaseModel):
 def health() -> dict:
     try:
         with connect() as conn:
-            count = conn.execute("SELECT COUNT(*) FROM cases").fetchone()[0]
-        return {"status": "ok", "service": "feedback-service", "cases_in_queue": count}
+            total   = conn.execute("SELECT COUNT(*) FROM cases").fetchone()[0]
+            pending = conn.execute(
+                "SELECT COUNT(*) FROM cases WHERE status='pending_review'"
+            ).fetchone()[0]
+        return {"status": "ok", "service": "feedback-service",
+                "cases_total": total, "cases_in_queue": pending}
     except Exception:
         return {"status": "ok", "service": "feedback-service"}
 
@@ -166,13 +170,15 @@ def list_cases(status: Optional[str] = None) -> dict:
         if status:
             rows = conn.execute(
                 "SELECT case_id,patient_id,age,sex,triage_json,confidence,"
-                "status,submitted_by,submitted_at FROM cases WHERE status=? "
+                "status,submitted_by,submitted_at,review_json,reviewed_at,inference_json"
+                " FROM cases WHERE status=? "
                 "ORDER BY confidence ASC", (status,)
             ).fetchall()
         else:
             rows = conn.execute(
                 "SELECT case_id,patient_id,age,sex,triage_json,confidence,"
-                "status,submitted_by,submitted_at FROM cases "
+                "status,submitted_by,submitted_at,review_json,reviewed_at,inference_json"
+                " FROM cases "
                 "ORDER BY confidence ASC"
             ).fetchall()
     cases = [{
@@ -185,6 +191,9 @@ def list_cases(status: Optional[str] = None) -> dict:
         "status":       r["status"],
         "submitted_by": r["submitted_by"],
         "submitted_at": r["submitted_at"],
+        "reviewed_at":  r["reviewed_at"],
+        "review":       json.loads(r["review_json"]) if r["review_json"] else None,
+        "inference":    json.loads(r["inference_json"]) if r["inference_json"] else {},
     } for r in rows]
     return {"cases": cases, "total": len(cases)}
 
@@ -223,8 +232,6 @@ def review_case(case_id: str, body: ReviewCreate,
         row = conn.execute("SELECT * FROM cases WHERE case_id=?", (case_id,)).fetchone()
         if not row:
             raise HTTPException(404, f"Caso {case_id} non trovato.")
-        if row["status"] == "reviewed":
-            raise HTTPException(409, f"Caso {case_id} già revisionato.")
         if not body.agreed and body.label_override is None:
             raise HTTPException(422, "label_override obbligatorio quando agreed=false.")
 

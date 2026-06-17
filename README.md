@@ -1,5 +1,10 @@
 # TRIAGE
 
+Sistema di supporto alla decisione clinica per la classificazione di tumori
+cerebrali da MRI. Architettura a microservizi, proof-of-concept accademico.
+
+---
+
 ## Credenziali di accesso
 
 | Ruolo | Username | Password | Pannello |
@@ -145,3 +150,8 @@ Ogni richiesta `POST /api/v1/triage` viene validata prima di essere inoltrata:
 | `clinical_data` | Oggetto JSON valido |
 
 ---
+
+## Prossimi passi
+
+1. Addestrare un modello reale e sostituire `StubPredictor` in `inference-service`
+2. Implementare GradCAM in `explainability-service` (il contratto API è già pronto)

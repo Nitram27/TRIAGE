@@ -148,6 +148,12 @@ def health() -> dict:
     return {"status": "ok", "service": "api-gateway"}
 
 
+@app.get("/api/v1/me", summary="Informazioni utente corrente")
+def get_me(user=Depends(get_user)) -> dict:
+    """Endpoint leggero per verificare le credenziali e ottenere il ruolo."""
+    return {"username": user["username"], "role": user["role"]}
+
+
 @app.get("/api/v1/status", summary="Stato aggregato servizi")
 async def status_all(user=Depends(get_user)) -> dict:
     services = {
