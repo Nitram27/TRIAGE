@@ -438,7 +438,7 @@ def index():
                                 conf   = inf.get("confidence", 0.5)
                                 lbl_str = "Neoplasia sospetta" if label == 1 else "Nessuna neoplasia"
 
-                                # H3 — Bottone chiudi caso (controllo e libertà utente)
+                                # Bottone chiudi caso (controllo e libertà utente)
                                 with ui.row().classes("w-full justify-end mb-2"):
                                     def chiudi_caso():
                                         _sel["paz_id"] = None
@@ -538,7 +538,7 @@ def index():
                                             # ── Scheda 3: Giudizio finale ──
                                             with ui.step(name="step3", title="Giudizio diagnostico finale"):
 
-                                                # H6 — Riepilogo step 1 e 2
+                                                #  — Riepilogo step 1 e 2
                                                 with ui.card().classes("w-full p-3 gap-1 bg-gray-50 border border-gray-200 mb-3"):
                                                     ui.label("Riepilogo").classes("text-xs font-bold text-gray-500 uppercase tracking-wide mb-1")
                                                     summary_assessment = ui.label("").classes("text-sm text-gray-700")
@@ -572,7 +572,7 @@ def index():
                                                     except Exception as exc:
                                                         err_lbl.set_text(_friendly_error(exc))
 
-                                                # H5 + H3 — Dialog conferma con on_click diretto
+                                                #  — Dialog conferma con on_click diretto
                                                 with ui.dialog() as confirm_dlg:
                                                     with ui.card().classes("p-6 gap-4").style("min-width:340px"):
                                                         ui.label("Conferma diagnosi definitiva").classes("font-bold text-gray-800 text-base")
@@ -588,7 +588,7 @@ def index():
 
                                                 final_radio = ui.radio(FINAL_LABEL_OPTIONS, value=lbl_str).classes("flex-col gap-2")
 
-                                                # H10 — Tooltip indice di confidenza
+                                                #  — Tooltip indice di confidenza
                                                 with ui.row().classes("items-center gap-1 mt-3"):
                                                     ui.label("Indice di confidenza nella diagnosi").classes("text-sm font-semibold text-gray-700")
                                                     with ui.element("span").classes("text-gray-400 cursor-help").style("font-size:13px"):
@@ -709,7 +709,7 @@ def index():
                                 fl_use = fl if fl is not None else label
                                 diag   = "Neoplasia sospetta" if fl_use == 1 else "Nessuna neoplasia"
 
-                                # H3: bottone chiudi caso
+                                # bottone chiudi caso
                                 with ui.row().classes("w-full justify-end mb-2"):
                                     def chiudi_storico():
                                         _sel["sto_id"] = None
@@ -775,7 +775,7 @@ def index():
                                                     sto_ok.classes(replace="text-red-600 text-sm font-semibold mt-1")
                                                     sto_ok.set_text(_friendly_error(exc))
 
-                                            # H5 + H3: dialog conferma prima dell'invio
+                                            #  dialog conferma prima dell'invio
                                             with ui.dialog() as sto_confirm_dlg:
                                                 with ui.card().classes("p-6 gap-4").style("min-width:320px"):
                                                     ui.label("Conferma aggiornamento diagnosi").classes("font-bold text-gray-800")
@@ -902,7 +902,7 @@ def index():
                         if not version_sel.value: return
                         ver = _vmap.get(version_sel.value)
                         if not ver: return
-                        # H5 + H3: dialog conferma prima del rollback
+                        #  dialog conferma prima del rollback
                         with ui.dialog() as rollback_dlg:
                             with ui.card().classes("p-6 gap-4").style("min-width:320px"):
                                 ui.label("Conferma attivazione versione").classes("font-bold text-gray-800")
