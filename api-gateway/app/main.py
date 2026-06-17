@@ -123,15 +123,15 @@ app = FastAPI(
     description=(
         "Unico punto d'ingresso con **autenticazione HTTP Basic**.\n\n"
         "---\n\n"
-        "**🩻 Radiologo** (`radiologo` / `radiologo123`)\n\n"
+        "**Radiologo** (`radiologo` / `radiologo123`)\n\n"
         "- `POST /api/v1/triage` — carica MRI + dati paziente, avvia il percorso diagnostico e inserisce il caso nella coda di revisione medica\n\n"
         "---\n\n"
-        "**🏥 Medico** (`medico` / `medico123`)\n\n"
+        "**Medico** (`medico` / `medico123`)\n\n"
         "- `GET /api/v1/cases` — lista casi in coda (ordinati per confidence crescente)\n"
         "- `GET /api/v1/cases/{case_id}` — dettaglio caso con MRI, risultato AI e saliency map\n"
         "- `POST /api/v1/cases/{case_id}/review` — invia revisione clinica (conferma o corregge label e confidence)\n\n"
         "---\n\n"
-        "**🔧 Tecnico** (`tecnico` / `tecnico123`)\n\n"
+        "**Tecnico** (`tecnico` / `tecnico123`)\n\n"
         "- `GET /api/v1/monitoring/status` — stato health di tutti i microservizi\n"
         "- `GET /api/v1/monitoring/logs` — log aggregati da System Log e Server Storage\n"
         "- `GET /api/v1/monitoring/model` — versione del modello in produzione\n"
@@ -182,7 +182,7 @@ async def status_all(user=Depends(get_user)) -> dict:
 
 @app.post(
     "/api/v1/triage",
-    summary="[Tecnico] Sottomette un caso MRI alla coda",
+    summary="[Radiologo] Sottomette un caso MRI alla coda",
     responses={
         422: {"description": "Immagine o clinical_data non validi"},
         503: {"description": "Servizi interni non raggiungibili"},
@@ -194,7 +194,7 @@ async def triage(
     user=Depends(require_radiologo),
 ) -> dict:
     """
-    Flusso completo tecnico:
+    Flusso completo radiologo:
     1. Valida contratto REST
     2. Data Ingestion → preprocess
     3. Triage Orchestrator → inference + spiegazione + triage
@@ -258,7 +258,7 @@ async def triage(
     logger.info("Caso in coda: %s priorità=%s by=%s",
                 result["case_id"], result["triage"]["priority"], user["username"])
 
-    # Al tecnico torna solo la conferma — il risultato AI resta nel server
+    # Al radiologo torna solo la conferma — il risultato AI resta nel server
     return {
         "case_id":  result["case_id"],
         "triage":   result["triage"],
