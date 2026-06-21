@@ -1,4 +1,4 @@
-# Inference Service di BrainDetect
+# Inference Service di TRIAGE
 # Immagine base snella; quando si aggiungera' un framework ML (PyTorch /
 # TensorFlow) andra' valutata un'immagine con runtime CUDA se serve la GPU.
 FROM python:3.11-slim
