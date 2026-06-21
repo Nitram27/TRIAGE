@@ -14,7 +14,6 @@ LIKERT_MAP = {
 }
 app.storage.key = "triage_secret_key"
 
-# Scrive favicon SVG su disco per ui.run()
 import pathlib
 _FAVICON_SVG = """<svg xmlns='http://www.w3.org/2000/svg' viewBox='-42 -46 84 98'>
 <path d='M0-34 C-19-34-34-19-34 0 C-34 12-27 22-17 27 C-17 33-12 38-5 38 L0 38 L0-34Z'
@@ -28,7 +27,7 @@ _FAVICON_SVG = """<svg xmlns='http://www.w3.org/2000/svg' viewBox='-42 -46 84 98
 <path d='M24-8 Q16-16 10-8' stroke='#1877f2' stroke-width='2' fill='none' stroke-linecap='round'/>
 <path d='M26 8 Q18 0 12 8' stroke='#1877f2' stroke-width='2' fill='none' stroke-linecap='round'/>
 </svg>"""
-pathlib.Path("brain_favicon.svg").write_text(_FAVICON_SVG)
+pathlib.Path("/tmp/brain_favicon.svg").write_text(_FAVICON_SVG)
 
 def _auth():
     a = app.storage.user.get("auth")
@@ -114,7 +113,7 @@ def index():
                 login_wrap.set_visibility(True)
             ui.button("Esci", on_click=do_logout).props("flat dense").classes("text-gray-600 text-sm")
 
-    # ── LOGIN — Facebook style ─────────────────────────────────────────────────
+    # ── LOGIN ─────────────────────────────────────────────────
     login_wrap = ui.element("div").style(
         "width:100vw;min-height:100vh;background:#f0f2f5;"
         "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px"
@@ -438,7 +437,7 @@ def index():
                                 conf   = inf.get("confidence", 0.5)
                                 lbl_str = "Neoplasia sospetta" if label == 1 else "Nessuna neoplasia"
 
-                                # Bottone chiudi caso (controllo e libertà utente)
+                                # H3 — Bottone chiudi caso (controllo e libertà utente)
                                 with ui.row().classes("w-full justify-end mb-2"):
                                     def chiudi_caso():
                                         _sel["paz_id"] = None
@@ -538,7 +537,7 @@ def index():
                                             # ── Scheda 3: Giudizio finale ──
                                             with ui.step(name="step3", title="Giudizio diagnostico finale"):
 
-                                                #  — Riepilogo step 1 e 2
+                                                # H6 — Riepilogo step 1 e 2
                                                 with ui.card().classes("w-full p-3 gap-1 bg-gray-50 border border-gray-200 mb-3"):
                                                     ui.label("Riepilogo").classes("text-xs font-bold text-gray-500 uppercase tracking-wide mb-1")
                                                     summary_assessment = ui.label("").classes("text-sm text-gray-700")
@@ -572,7 +571,7 @@ def index():
                                                     except Exception as exc:
                                                         err_lbl.set_text(_friendly_error(exc))
 
-                                                #  — Dialog conferma con on_click diretto
+                                                # H5 + H3 — Dialog conferma con on_click diretto
                                                 with ui.dialog() as confirm_dlg:
                                                     with ui.card().classes("p-6 gap-4").style("min-width:340px"):
                                                         ui.label("Conferma diagnosi definitiva").classes("font-bold text-gray-800 text-base")
@@ -588,7 +587,7 @@ def index():
 
                                                 final_radio = ui.radio(FINAL_LABEL_OPTIONS, value=lbl_str).classes("flex-col gap-2")
 
-                                                #  — Tooltip indice di confidenza
+                                                # H10 — Tooltip indice di confidenza
                                                 with ui.row().classes("items-center gap-1 mt-3"):
                                                     ui.label("Indice di confidenza nella diagnosi").classes("text-sm font-semibold text-gray-700")
                                                     with ui.element("span").classes("text-gray-400 cursor-help").style("font-size:13px"):
@@ -709,7 +708,7 @@ def index():
                                 fl_use = fl if fl is not None else label
                                 diag   = "Neoplasia sospetta" if fl_use == 1 else "Nessuna neoplasia"
 
-                                # bottone chiudi caso
+                                # H3: bottone chiudi caso
                                 with ui.row().classes("w-full justify-end mb-2"):
                                     def chiudi_storico():
                                         _sel["sto_id"] = None
@@ -775,7 +774,7 @@ def index():
                                                     sto_ok.classes(replace="text-red-600 text-sm font-semibold mt-1")
                                                     sto_ok.set_text(_friendly_error(exc))
 
-                                            #  dialog conferma prima dell'invio
+                                            # H5 + H3: dialog conferma prima dell'invio
                                             with ui.dialog() as sto_confirm_dlg:
                                                 with ui.card().classes("p-6 gap-4").style("min-width:320px"):
                                                     ui.label("Conferma aggiornamento diagnosi").classes("font-bold text-gray-800")
@@ -902,7 +901,7 @@ def index():
                         if not version_sel.value: return
                         ver = _vmap.get(version_sel.value)
                         if not ver: return
-                        #  dialog conferma prima del rollback
+                        # H5 + H3: dialog conferma prima del rollback
                         with ui.dialog() as rollback_dlg:
                             with ui.card().classes("p-6 gap-4").style("min-width:320px"):
                                 ui.label("Conferma attivazione versione").classes("font-bold text-gray-800")
@@ -1019,5 +1018,5 @@ def index():
                 ui.timer(0.1, load_training, once=True)
 
 
-ui.run(host="0.0.0.0", port=7860, title="TRIAGE", favicon='brain_favicon.svg',
+ui.run(host="0.0.0.0", port=7860, title="TRIAGE", favicon='/tmp/brain_favicon.svg',
        storage_secret="triage_secret_key", reload=False)
